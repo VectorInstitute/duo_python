@@ -76,6 +76,17 @@ class RequestHandler(SimpleHTTPRequestHandler):
         except ValueError:
             self.error(b'user query parameter is required')
             return
+
+        authenticated_username = os.getenv('AUTHENTICATE_UID')
+        
+        if authenticated_username is None:
+            self.error(b'user not authenticated')
+            return
+
+        if username != authenticated_username:
+            self.error(f'wrong user name, it should be {authenticated_username}'.encode())
+            return
+
         self.send_response(200)
         self.end_headers()
 
@@ -123,6 +134,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         except ValueError:
             self.error('sig_response post parameter is required')
             return
+
         user = duo_web.verify_response(
             self.server.ikey, self.server.skey, self.server.akey, sig_response)
 
@@ -152,8 +164,13 @@ def main(ikey, skey, akey, host, port=8080):
     server.skey = skey
     server.akey = akey
     server.host = host
-    print("Visit the root URL with a 'user' argument, e.g.")
-    print("'http://localhost:%d/?user=myname'." % port)
+    username = os.getenv('AUTHENTICATE_UID')
+
+    if username is None:
+        raise ValueError("User not authenticated")
+
+    print("Visit")
+    print("'http://localhost:{}/?user={}'".format(port, username))
     server.serve_forever()
 
 
