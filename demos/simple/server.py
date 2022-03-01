@@ -166,11 +166,8 @@ def main(ikey, skey, akey, host, port=8080):
     server.host = host
     username = os.getenv('AUTHENTICATE_UID')
 
-    if username is None:
-        raise ValueError("User not authenticated")
-
     print("Visit")
-    print("'http://localhost:{}/?user={}'".format(port, username))
+    print("'http://localhost:{}/?user={}'".format(port, username if username is not None else "user"))
     server.serve_forever()
 
 
