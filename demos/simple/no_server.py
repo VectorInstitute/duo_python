@@ -46,6 +46,9 @@ def main(ikey, skey, akey, host):
         'sig_request': sig_request
     }
 
+    with open("test.html", "w") as text_file:
+        text_file.write(out)
+
     print(out)
 
 
